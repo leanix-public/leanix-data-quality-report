@@ -79,6 +79,24 @@ export default {
           .map(edge => {
             const node = edge.node
             let displayName = node.displayName
+            if (this.searchQuery) {
+              const indices = []
+              let startIndex = 0
+              let index
+              while ((index = displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase(), startIndex)) > -1) {
+                indices.push(index)
+                startIndex = index + this.searchQuery.length
+              }
+              const substrings = indices.map(idx => displayName.substring(idx, idx + this.searchQuery.length))
+                .filter((value, index, self) => self.indexOf(value) === index) // Filter repeated substrings
+
+              substrings.forEach((substring, idx) => displayName = displayName.split(substring).join(`{{${idx}}}`))
+
+              substrings.forEach((substring, idx) => {
+                const tag = `<span style="color: #1E88E5; font-weight: bold">${substring}</span>`
+                displayName = displayName.split(`{{${idx}}}`).join(tag)
+              })
+            }
             return { id: node.id, displayName, percentage: node.completion ? node.completion.percentage : 0 }
           })
           .sort((a, b) => {

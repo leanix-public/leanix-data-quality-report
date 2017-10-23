@@ -39,7 +39,6 @@ networkInterface.use([{
 
 networkInterface.useAfter([{
   applyAfterware ({ response }, next) {
-    console.log('RES', response)
     if (response.status === 401) {
       console.warn('GOT 401, should get another token')
     }

@@ -61,7 +61,6 @@ export default {
       sortingParameter: SORTING_PARAMETER.NONE,
       sortingOrder: SORTING_ORDER.ASC,
       setup: {},
-      applicationCompletionQuery: {},
       loading: 0
     }
   },

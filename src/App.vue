@@ -79,11 +79,6 @@ export default {
           .map(edge => {
             const node = edge.node
             let displayName = node.displayName
-            if (this.searchQuery) {
-              const idx = displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase())
-              const substring = displayName.substring(idx, this.searchQuery.length)
-              displayName = displayName.replace(substring, `<span style="color: #1E88E5; font-weight: bold">${substring}</span>`)
-            }
             return { id: node.id, displayName, percentage: node.completion ? node.completion.percentage : 0 }
           })
           .sort((a, b) => {

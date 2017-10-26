@@ -16,7 +16,7 @@
         </tr>
       </thead>
       <transition name="fade">
-        <tbody v-if="!loading">
+        <tbody v-if="!loading" class="custom-scrollbar">
           <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
             <td class="display-name" v-html="application.displayName"/>
             <td v-html="application.completion.percentage + ' %'"/>
@@ -261,6 +261,7 @@ tbody
   overflow-x: hidden
   display: block
   width: 100%
+
   & tr:hover 
     font-size: 1.6rem
     font-weight: bold
@@ -304,4 +305,14 @@ tbody tr
   .no-print, .no-print *
     display: none !important
 
+.custom-scrollbar
+  &::-webkit-scrollbar-track
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3)
+    background-color: grey-100
+  &::-webkit-scrollbar
+    width: 0.5em
+    background-color: transparent
+  &::-webkit-scrollbar-thumb
+    background-color: #a9a9a9
+    outline: 1px solid #708090
 </style>

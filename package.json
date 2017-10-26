@@ -7,7 +7,8 @@
   },
   "leanixReport": {
     "id": "net.leanix.pmrs.customDataQualityReport",
-    "title": "Custom Data Quality Report"
+    "title": "Custom Data Quality Report",
+    "defaultConfig": {}
   },
   "scripts": {
     "start": "lxr start",

@@ -5,7 +5,7 @@
       <div class="spacer"/>
     </div>
     <table class="noselect">
-      <thead @click.stop="toggleSorted">
+      <thead @click.stop="toggleSorted" class="card-1">
         <tr>
           <th>Application
             <i :parameter="'application'" @click.stop="toggleSorted" :class="getSortIconClass('application')"/>
@@ -17,7 +17,7 @@
       </thead>
       <tbody v-if="!loading">
         <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
-          <td v-html="application.displayName"/>
+          <td class="display-name" v-html="application.displayName"/>
           <td v-html="application.completion.percentage + ' %'"/>
         </tr>
       </tbody>
@@ -73,7 +73,7 @@ export default {
             substrings.forEach((substring, idx) => displayName = displayName.split(substring).join(`{{${idx}}}`))
 
             substrings.forEach((substring, idx) => {
-              const tag = `<span style="color: #028512; font-weight: bold">${substring}</span>`
+              const tag = `<span style="color: #094153; font-weight: bold">${substring}</span>`
               displayName = displayName.split(`{{${idx}}}`).join(tag)
             })
           }
@@ -127,8 +127,8 @@ export default {
         menuActions: {},
         facets: [{
           key: 'main',
-          attributes: ['displayName', 'type', 'description', 'completion'],
-          callback: data => { this.data = data; this.loading = false }
+          attributes: ['displayName', 'type', 'description', 'completion { percentage }'],
+          callback: data => { this.data = data; this.loading = false; console.log('data', data) }
         }]
       }
     }
@@ -148,6 +148,9 @@ export default {
 @import '~font-awesome/css/font-awesome.css'
 
 font-size = 14px
+grey-100 = #F5F5F5
+grey-500 = #9E9E9E
+grey-800 = #424242
 grey-leanix = #e6e6e6
 blue-leanix = #094153
 green-leanix = #028512
@@ -156,7 +159,7 @@ success = green-leanix
 warning = #F57F17
 danger = #C62828
 
-grey-100 = #F5F5F5
+
 
 table-max-width = 980px
 
@@ -176,6 +179,8 @@ table-max-width = 980px
   &:hover
     color danger
 
+.display-name
+  color grey-800
 
 .noselect
   -webkit-touch-callout: none
@@ -217,12 +222,13 @@ input[type=text]
       width: 100%
     padding: 0.5rem 1rem
     display: inline-block
-    border: 1px solid #ccc
+    border: 1px solid grey-leanix
     border-radius: 3px
     box-sizing: border-box
     &:focus
       outline none !important
-      border 1px solid green-leanix
+      border 1px solid grey-500
+      box-shadow 0 0 5px grey-500
 
 table
   width: 100%
@@ -241,7 +247,6 @@ thead
   display:table
   width:calc(100% - 18px)
   font-size: 1.2rem
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
   margin-bottom: 1px
   & tr th
     @media screen and (max-width: 600px)
@@ -252,6 +257,7 @@ thead
       cursor: pointer
 
 tbody
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
   max-height: 500px
   overflow: auto
   overflow-x: hidden
@@ -290,7 +296,6 @@ tbody tr
 
 .card-1 {
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 }
 
 @media print

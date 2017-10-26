@@ -15,35 +15,22 @@
           </th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(application, idx) in appDataset" :key="application.id">
+      <tbody v-if="!loading">
+        <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
           <td v-html="application.displayName"/>
-          <td v-html="application.percentage + ' %'"/>
+          <td v-html="application.completion.percentage + ' %'"/>
         </tr>
       </tbody>
+      <div v-if="loading" class="icon-loading-frame">
+          <i class="fa fa-spinner fa-pulse fa-fw"/>
+      </div>
     </table>
   </div>
 </template>
 
 <script>
 import '@leanix/reporting'
-import gql from 'graphql-tag'
 
-const graphQLQuery = gql`
-{
-  allFactSheets (filter: {facetFilters: [{facetKey: "FactSheetTypes", keys: ["Application"]}]}) {
-    edges {
-      node {
-        id
-        displayName
-        completion {
-          percentage
-        }
-      }
-    }
-  }
-}
-`
 const SORTING_PARAMETER = {
   APPLICATION: 'application',
   COMPLETION: 'completion'
@@ -57,56 +44,48 @@ const SORTING_ORDER = {
 export default {
   data () {
     return {
+      data: [],
       searchQuery: '',
       sortingParameter: SORTING_PARAMETER.NONE,
       sortingOrder: SORTING_ORDER.ASC,
       setup: {},
-      loading: 0
+      loading: true
     }
-  },
-  apollo: {
-    allFactSheets: {
-      query: graphQLQuery,
-      loadingKey: 'loading',
-      error: error => console.error('ERROR IN GRAPHQL', error)
-    },
   },
   computed: {
     appDataset () {
-      if (this.allFactSheets && this.allFactSheets.edges) {
-        return this.allFactSheets.edges
-          .filter(edge => edge.node.displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) > -1)
-          .map(edge => {
-            const node = edge.node
-            let displayName = node.displayName
-            if (this.searchQuery) {
-              const indices = []
-              let startIndex = 0
-              let index
-              while ((index = displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase(), startIndex)) > -1) {
-                indices.push(index)
-                startIndex = index + this.searchQuery.length
-              }
-              const substrings = indices.map(idx => displayName.substring(idx, idx + this.searchQuery.length))
-                .filter((value, index, self) => self.indexOf(value) === index) // Filter repeated substrings
-
-              substrings.forEach((substring, idx) => displayName = displayName.split(substring).join(`{{${idx}}}`))
-
-              substrings.forEach((substring, idx) => {
-                const tag = `<span style="color: #1E88E5; font-weight: bold">${substring}</span>`
-                displayName = displayName.split(`{{${idx}}}`).join(tag)
-              })
+      return this.data
+        .filter(factSheet => factSheet.type === 'Application') // This filtering criteria shall be made at the source
+        .filter(factSheet => factSheet.displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) > -1)
+        .map(factSheet => {
+          let displayName = factSheet.displayName
+          if (this.searchQuery) {
+            const indices = []
+            let startIndex = 0
+            let index
+            while ((index = displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase(), startIndex)) > -1) {
+              indices.push(index)
+              startIndex = index + this.searchQuery.length
             }
-            return { id: node.id, displayName, percentage: node.completion ? node.completion.percentage : 0 }
-          })
-          .sort((a, b) => {
-            if (this.sortingParameter === SORTING_PARAMETER.COMPLETION) {
-              return this.sortingOrder === SORTING_ORDER.ASC ? a.percentage - b.percentage : b.percentage - a.percentage
-            } else if (this.sortingParameter === SORTING_PARAMETER.APPLICATION) {
-              return this.sortingOrder === SORTING_ORDER.ASC ? a.displayName.localeCompare(b.displayName) : b.displayName.localeCompare(a.displayName)
-            }
-          })
-      } else return []
+            const substrings = indices.map(idx => displayName.substring(idx, idx + this.searchQuery.length))
+              .filter((value, index, self) => self.indexOf(value) === index) // Filter repeated substrings
+
+            substrings.forEach((substring, idx) => displayName = displayName.split(substring).join(`{{${idx}}}`))
+
+            substrings.forEach((substring, idx) => {
+              const tag = `<span style="color: #028512; font-weight: bold">${substring}</span>`
+              displayName = displayName.split(`{{${idx}}}`).join(tag)
+            })
+          }
+          return Object.assign({}, factSheet, { displayName })
+        })
+        .sort((a, b) => {
+          if (this.sortingParameter === SORTING_PARAMETER.COMPLETION) {
+            return this.sortingOrder === SORTING_ORDER.ASC ? a.completion.percentage - b.completion.percentage : b.completion.percentage - a.completion.percentage
+          } else if (this.sortingParameter === SORTING_PARAMETER.APPLICATION) {
+            return this.sortingOrder === SORTING_ORDER.ASC ? a.displayName.localeCompare(b.displayName) : b.displayName.localeCompare(a.displayName)
+          }
+        })
     }
   },
   methods: {
@@ -116,6 +95,16 @@ export default {
       else if (this.sortingParameter !== sortingParameter) this.sortingOrder = SORTING_ORDER.ASC
       else this.sortingOrder = this.sortingOrder === SORTING_ORDER.ASC ? SORTING_ORDER.DESC : SORTING_ORDER.ASC
       this.sortingParameter = sortingParameter
+    },
+    getRowClass (application) {
+      let clazz
+      if (application && application.completion) {
+        const completion = application.completion
+        if (completion.percentage >= 30) clazz = 'success-on-hover'
+        else if (completion.percentage > 15 && completion.percentage < 30) clazz = 'warning-on-hover'
+        else if (completion.percentage <= 15) clazz = 'danger-on-hover'
+      }
+      return clazz
     },
     getSortIconClass (sortingParameter) {
       const clazz = ['fa']
@@ -134,14 +123,12 @@ export default {
     },
     createConfig() {
       return {
+        allowEditing: false,
         menuActions: {},
         facets: [{
           key: 'main',
-          attributes: ['displayName', 'type', 'description'],
-          callback: data => {
-            this.data = data
-            this.groups = _.groupBy(data, 'type')
-          }
+          attributes: ['displayName', 'type', 'description', 'completion'],
+          callback: data => { this.data = data; this.loading = false }
         }]
       }
     }
@@ -161,18 +148,34 @@ export default {
 @import '~font-awesome/css/font-awesome.css'
 
 font-size = 14px
+grey-leanix = #e6e6e6
+blue-leanix = #094153
+green-leanix = #028512
+
+success = green-leanix
+warning = #F57F17
+danger = #C62828
+
 grey-100 = #F5F5F5
-grey-400 = #BDBDBD
-grey-800 = #424242
-blue-600 = #1E88E5
 
 table-max-width = 980px
 
 .active
-  color: blue-600
+  color green-leanix
 
 .disabled
-  color: grey-400
+  color grey-400
+
+.success-on-hover
+  &:hover
+    color success 
+.warning-on-hover
+  &:hover
+    color warning
+.danger-on-hover
+  &:hover
+    color danger
+
 
 .noselect
   -webkit-touch-callout: none
@@ -217,6 +220,9 @@ input[type=text]
     border: 1px solid #ccc
     border-radius: 3px
     box-sizing: border-box
+    &:focus
+      outline none !important
+      border 1px solid green-leanix
 
 table
   width: 100%
@@ -231,7 +237,7 @@ th, td
   text-align: center
 
 thead
-  background: grey-100
+  background: grey-leanix
   display:table
   width:calc(100% - 18px)
   font-size: 1.2rem
@@ -254,7 +260,6 @@ tbody
   & tr:hover 
     font-size: 1.2rem
     font-weight: bold
-    color: blue-600
 
   & tr:nth-child(even)
     background-color: grey-100
@@ -267,6 +272,21 @@ tbody tr
   -moz-transition: all 0.2s ease
   -o-transition: all 0.2s ease
   transition: all 0.2s ease
+
+.icon-loading-frame
+  display flex
+  justify-content center
+  align-items center
+  height 500px
+  & i
+    color grey-leanix
+    font-size 6rem
+  @media screen and (max-width: 600px)
+    height 200px
+    & i 
+      color green
+      font-size 5rem
+  
 
 .card-1 {
   box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);

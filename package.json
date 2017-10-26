@@ -1,14 +1,13 @@
 {
   "name": "custom-data-quality-report",
   "version": "1.0.0",
-  "description": "Custom Data Quality Report",
+  "description": "This report shows the overall quality of your Application Fact Sheets",
   "engines": {
     "node": ">=8.5.0"
   },
   "leanixReport": {
     "id": "net.leanix.pmrs.customDataQualityReport",
-    "title": "Custom Data Quality Report",
-    "defaultConfig": {}
+    "title": "Custom Data Quality Report"
   },
   "scripts": {
     "start": "lxr start",
@@ -19,7 +18,7 @@
     "leanix",
     "custom-report"
   ],
-  "author": "Paulo dos Santos <pauloramires@gmail.com>",
+  "author": "Paulo dos Santos",
   "private": true,
   "license": "UNLICENSED",
   "devDependencies": {
@@ -47,9 +46,7 @@
   },
   "dependencies": {
     "@leanix/reporting": "^0.2.0",
-    "apollo-client": "^1.9.3",
     "font-awesome": "^4.7.0",
-    "vue": "^2.5.2",
-    "vue-apollo": "^2.1.0-rc.8"
+    "vue": "^2.5.2"
   }
 }

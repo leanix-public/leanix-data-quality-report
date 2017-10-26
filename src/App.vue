@@ -15,12 +15,14 @@
           </th>
         </tr>
       </thead>
-      <tbody v-if="!loading">
-        <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
-          <td class="display-name" v-html="application.displayName"/>
-          <td v-html="application.completion.percentage + ' %'"/>
-        </tr>
-      </tbody>
+      <transition name="fade">
+        <tbody v-if="!loading">
+          <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
+            <td class="display-name" v-html="application.displayName"/>
+            <td v-html="application.completion.percentage + ' %'"/>
+          </tr>
+        </tbody>
+      </transition>
       <div v-if="loading" class="icon-loading-frame">
           <i class="fa fa-spinner fa-pulse fa-fw"/>
       </div>
@@ -159,8 +161,6 @@ success = green-leanix
 warning = #F57F17
 danger = #C62828
 
-
-
 table-max-width = 980px
 
 .active
@@ -193,9 +193,6 @@ table-max-width = 980px
 .spacer
   flex: 1
 
-.tagged-substring
-  color: blue
-
 .report
   display: flex
   flex-flow: column
@@ -203,7 +200,7 @@ table-max-width = 980px
   justify-content: center
   font-family: Arial, Helvetica, sans-serif
   font-size: 14px
-  color: #555
+  color: grey-800
 
 .fullwidth
   width: 100%
@@ -225,6 +222,7 @@ input[type=text]
     border: 1px solid grey-leanix
     border-radius: 3px
     box-sizing: border-box
+    transition: all 0.2s
     &:focus
       outline none !important
       border 1px solid grey-500
@@ -264,7 +262,7 @@ tbody
   display: block
   width: 100%
   & tr:hover 
-    font-size: 1.2rem
+    font-size: 1.6rem
     font-weight: bold
 
   & tr:nth-child(even)
@@ -274,10 +272,10 @@ tbody tr
   display:table
   width:100%
   table-layout: fixed
-  -webkit-transition: all 0.2s ease
-  -moz-transition: all 0.2s ease
-  -o-transition: all 0.2s ease
-  transition: all 0.2s ease
+  -webkit-transition: all 0.4s ease
+  -moz-transition: all 0.4s ease
+  -o-transition: all 0.4s ease
+  transition: all 0.4s ease
 
 .icon-loading-frame
   display flex
@@ -285,18 +283,22 @@ tbody tr
   align-items center
   height 500px
   & i
-    color grey-leanix
+    color grey-500
     font-size 6rem
   @media screen and (max-width: 600px)
     height 200px
     & i 
-      color green
       font-size 5rem
   
 
-.card-1 {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-}
+.card-1
+  box-shadow 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)
+
+.fade-enter-active, .fade-leave-active
+  transition opacity .5s
+
+.fade-enter, .fade-leave-to
+  opacity 0
 
 @media print
   .no-print, .no-print *

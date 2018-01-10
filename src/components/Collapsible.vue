@@ -15,7 +15,7 @@
       </div>
     </div>
     <transition name="fade">
-      <div v-show="!collapsed" class="component-body">
+      <div v-if="!collapsed" class="component-body">
         <slot name="body">
           Body
         </slot>

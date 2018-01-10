@@ -48,6 +48,7 @@
   "dependencies": {
     "@leanix/reporting": "^0.2.0",
     "font-awesome": "^4.7.0",
+    "scrollmonitor": "^1.2.4",
     "vue": "^2.5.2"
   }
 }

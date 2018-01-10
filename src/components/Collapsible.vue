@@ -5,7 +5,10 @@
         Header
       </slot>
       <div style="flex: 1"/>
-      <div class="collapse-icon" style="cursor: pointer" @click="collapse" :collapsed="collapsed">
+      <div v-if="loading">
+        <i class="fa fa-refresh fa-spin fa-fw fa-lg"/>
+      </div>
+      <div v-else class="collapse-icon" style="cursor: pointer" @click="collapse" :collapsed="collapsed">
         <i class="collapse-icon fa fa-angle-double-up fa-2x" />
       </div>
     </div>
@@ -21,7 +24,7 @@
 
 <script>
   export default {
-    props: ['level'],
+    props: ['level', 'loading'],
     data () {
       return {
         collapsed: true
@@ -39,14 +42,10 @@
 <style lang="stylus" scoped>
   .component
     &-container
-      font-size 12px
       border-radius 4px
       border 1px solid #C5C5C5
       min-width 200px
       max-width 80%
-      overflow auto
-      display flex
-      flex-flow column
     &-header
       background #354567
       color white
@@ -55,6 +54,7 @@
       display flex
       flex-flow row
       align-items center
+      height 30px
     &-body
       border-radius 0px 0px 4px 4px
       padding 8px

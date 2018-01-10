@@ -1,6 +1,6 @@
 <template>
   <div class="component-container" :style="level === 1 ? 'width: 70%; margin-bottom: 8px' : '' ">
-    <div class="component-header">
+    <div class="component-header" :class="loading ? 'loading' : ''">
       <slot name="header">
         Header
       </slot>
@@ -55,6 +55,8 @@
       flex-flow row
       align-items center
       height 30px
+      &.loading
+        background grey
     &-body
       border-radius 0px 0px 4px 4px
       padding 8px

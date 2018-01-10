@@ -5,13 +5,8 @@
         Header
       </slot>
       <div style="flex: 1"/>
-      <div style="cursor: pointer" @click="collapse">
-        <div v-if="collapsed">
-          <i class="fa fa-angle-down fa-2x" />
-        </div>
-        <div v-else>
-          <i class="fa fa-angle-up fa-2x" />
-        </div>
+      <div class="collapse-icon" style="cursor: pointer" @click="collapse" :collapsed="collapsed">
+        <i class="collapse-icon fa fa-angle-down fa-2x" />
       </div>
     </div>
     <transition name="fade">
@@ -75,5 +70,14 @@
   
   .fade-enter, .fade-leave-to
     opacity: 0
+
+  .collapse-icon
+    transition 0.3s ease all
+    &[collapsed="true"]
+      -webkit-transform rotate(180deg)
+      -moz-transform rotate(180deg)
+      -ms-transform rotate(180deg)
+      -o-transform rotate(180deg)
+      transform rotate(180deg)
 
 </style>

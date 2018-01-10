@@ -1,5 +1,6 @@
 <template>
   <div class="report">
+    <card :header="'Business Capability Header'" />
     <collapsible>
       <template slot="header">Level 1 header</template>
       <template slot="body">
@@ -68,10 +69,11 @@
 
 <script>
 import '@leanix/reporting'
+import Card from './components/Card'
 import Collapsible from './components/Collapsible'
 
 export default {
-  components: { Collapsible },
+  components: { Card, Collapsible },
   data () {
     return {
       setup: {}

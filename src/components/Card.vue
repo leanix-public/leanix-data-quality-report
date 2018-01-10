@@ -1,6 +1,6 @@
 <template>
-  <collapsible>
-    <template slot="header">{{header}}</template>
+  <collapsible :level="businessCapability.level">
+    <template slot="header">{{businessCapability.name}}</template>
   </collapsible>
 </template>
 
@@ -9,6 +9,6 @@
 
   export default {
     components: { Collapsible },
-    props: ['header']
+    props: ['businessCapability']
   }
 </script>

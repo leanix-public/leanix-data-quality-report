@@ -1,12 +1,12 @@
 <template>
-  <div class="component-container">
+  <div class="component-container" :style="level === 1 ? 'width: 70%; margin-bottom: 8px' : '' ">
     <div class="component-header">
       <slot name="header">
         Header
       </slot>
       <div style="flex: 1"/>
       <div class="collapse-icon" style="cursor: pointer" @click="collapse" :collapsed="collapsed">
-        <i class="collapse-icon fa fa-angle-down fa-2x" />
+        <i class="collapse-icon fa fa-angle-double-up fa-2x" />
       </div>
     </div>
     <transition name="fade">
@@ -21,6 +21,7 @@
 
 <script>
   export default {
+    props: ['level'],
     data () {
       return {
         collapsed: true
@@ -38,11 +39,11 @@
 <style lang="stylus" scoped>
   .component
     &-container
-      font-size 11px
+      font-size 12px
       border-radius 4px
       border 1px solid #C5C5C5
       min-width 200px
-      max-width 1000px
+      max-width 80%
       overflow auto
       display flex
       flex-flow column

@@ -1,6 +1,7 @@
 <template>
   <div class="report">
-    <card :header="'Business Capability Header'" />
+    {{loading}}
+    <card v-for="(businessCapability, idx) in businessCapabilitiesL1" :key="idx" :businessCapability="businessCapability" />
     <collapsible>
       <template slot="header">Level 1 header</template>
       <template slot="body">
@@ -69,6 +70,7 @@
 
 <script>
 import '@leanix/reporting'
+import graphql from './graphql'
 import Card from './components/Card'
 import Collapsible from './components/Collapsible'
 
@@ -76,28 +78,45 @@ export default {
   components: { Card, Collapsible },
   data () {
     return {
-      setup: {}
+      setup: {},
+      nodes: {},
+      loading: 0
     }
   },
   methods: {
-    getData () {
-      lx.executeGraphQL(`{
-        allFactSheets(factSheetType: ITComponent) {
-          edges {
-            node {
-              name
-              type
-              description
-            }
-          }
+    fetchLevel1BusinessCapabilities () {
+      const query = graphql.queries.FETCH_BUSINESS_CAPABILITIES
+      const variables = {
+        filter: {
+          facetFilters: [
+            { facetKey: 'FactSheetTypes', keys: ['BusinessCapability'] },
+            { facetKey: 'hierarchyLevel', keys: ['1'] },
+          ]
         }
-      }`)
-      .then(res => {
-        console.log(res)
-      })
-      .catch(error => {
-        console.error(error)
-      })
+      }
+      this.loading++
+      lx.executeGraphQL(query, variables)
+        .then(res => {
+          this.loading--
+          if (res.allFactSheets) {
+            this.nodes = res.allFactSheets.edges
+              .map(edge => edge.node)
+              .reduce((nodes, node) => {
+                nodes[node.id] = node
+                delete nodes[node.id]['id']
+                return nodes
+              }, {})
+          }
+        })
+        .catch(error => {
+          this.loading--
+          console.error(error)
+        })
+    }
+  },
+  computed: {
+    businessCapabilitiesL1 () {
+      return Object.keys(this.nodes).filter(id => this.nodes[id].level === 1).map(id => this.nodes[id])
     }
   },
   mounted () {
@@ -105,11 +124,8 @@ export default {
       .then(setup => {
         this.setup = setup
         lx.ready({})
+        this.fetchLevel1BusinessCapabilities()
       })
-    setTimeout(() => {
-      console.log('gettiong data')
-      this.getData()
-    }, 5000)
   }
 }
 </script>

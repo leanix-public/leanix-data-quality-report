@@ -1,153 +1,118 @@
 <template>
   <div class="report">
-    <div class="row table-width no-print">
-      <input v-model="searchQuery" type="text" placeholder="Search">
-      <div class="spacer"/>
-    </div>
-    <table class="noselect">
-      <thead @click.stop="toggleSorted" class="card-1">
-        <tr>
-          <th>Application
-            <i :parameter="'application'" @click.stop="toggleSorted" :class="getSortIconClass('application')"/>
-          </th>
-          <th>Completion
-            <i :parameter="'completion'" @click.stop="toggleSorted" :class="getSortIconClass('completion')"/>
-          </th>
-        </tr>
-      </thead>
-      <transition name="fade">
-        <tbody v-if="!loading" class="custom-scrollbar">
-          <tr v-for="(application, idx) in appDataset" :key="application.id" :class="getRowClass(application)">
-            <td class="display-name" v-html="application.displayName"/>
-            <td v-html="application.completion.percentage + ' %'"/>
-          </tr>
-        </tbody>
-      </transition>
-      <div v-if="loading" class="icon-loading-frame">
-          <i class="fa fa-spinner fa-pulse fa-fw"/>
-      </div>
-    </table>
+    <collapsible>
+      <template slot="header">Level 1 header</template>
+      <template slot="body">
+        <collapsible>
+          <template slot="header">Level 2 header (#1)</template>
+          <template slot="body">Body from app!</template>
+        </collapsible>
+        <collapsible>
+          <template slot="header">Level 2 header (#2)</template>
+          <template slot="body">Body from app!</template>
+        </collapsible>
+        <collapsible>
+          <template slot="header">Level 2 header (#3)</template>
+          <template slot="body">Body from app!</template>
+        </collapsible>
+        <collapsible>
+          <template slot="header">Level 2 header (#4)</template>
+          <template slot="body">Body from app!</template>
+        </collapsible>
+        <collapsible>
+          <template slot="header">Level 2 header (#5)</template>
+          <template slot="body">
+            <collapsible>
+              <template slot="header">Level 3 header (#1)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+             <collapsible>
+              <template slot="header">Level 3 header (#2)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+             <collapsible>
+              <template slot="header">Level 3 header (#3)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+            <collapsible>
+              <template slot="header">Level 3 header (#4)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+          </template>
+        </collapsible>
+        <collapsible>
+          <template slot="header">Level 2 header (#6)</template>
+          <template slot="body">
+            <collapsible>
+              <template slot="header">Level 3 header (#1)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+             <collapsible>
+              <template slot="header">Level 3 header (#2)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+             <collapsible>
+              <template slot="header">Level 3 header (#3)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+            <collapsible>
+              <template slot="header">Level 3 header (#4)</template>
+              <template slot="body">Body from app!</template>
+            </collapsible>
+          </template>
+        </collapsible>
+      </template>
+    </collapsible>
   </div>
 </template>
 
 <script>
 import '@leanix/reporting'
-
-const SORTING_PARAMETER = {
-  APPLICATION: 'application',
-  COMPLETION: 'completion'
-}
-
-const SORTING_ORDER = {
-  ASC: 'asc',
-  DESC: 'desc'
-}
+import Collapsible from './components/Collapsible'
 
 export default {
+  components: { Collapsible },
   data () {
     return {
-      data: [],
-      searchQuery: '',
-      sortingParameter: SORTING_PARAMETER.NONE,
-      sortingOrder: SORTING_ORDER.ASC,
-      setup: {},
-      loading: true
-    }
-  },
-  computed: {
-    appDataset () {
-      return this.data
-        .filter(factSheet => factSheet.type === 'Application') // This filtering criteria shall be made at the source
-        .filter(factSheet => factSheet.displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) > -1)
-        .map(factSheet => {
-          let displayName = factSheet.displayName
-          if (this.searchQuery) {
-            const indices = []
-            let startIndex = 0
-            let index
-            while ((index = displayName.toLowerCase().indexOf(this.searchQuery.toLowerCase(), startIndex)) > -1) {
-              indices.push(index)
-              startIndex = index + this.searchQuery.length
-            }
-            const substrings = indices.map(idx => displayName.substring(idx, idx + this.searchQuery.length))
-              .filter((value, index, self) => self.indexOf(value) === index) // Filter repeated substrings
-
-            substrings.forEach((substring, idx) => displayName = displayName.split(substring).join(`{{${idx}}}`))
-
-            substrings.forEach((substring, idx) => {
-              const tag = `<span style="color: #094153; font-weight: bold">${substring}</span>`
-              displayName = displayName.split(`{{${idx}}}`).join(tag)
-            })
-          }
-          return Object.assign({}, factSheet, { displayName })
-        })
-        .sort((a, b) => {
-          if (this.sortingParameter === SORTING_PARAMETER.COMPLETION) {
-            return this.sortingOrder === SORTING_ORDER.ASC ? a.completion.percentage - b.completion.percentage : b.completion.percentage - a.completion.percentage
-          } else if (this.sortingParameter === SORTING_PARAMETER.APPLICATION) {
-            return this.sortingOrder === SORTING_ORDER.ASC ? a.displayName.localeCompare(b.displayName) : b.displayName.localeCompare(a.displayName)
-          }
-        })
+      setup: {}
     }
   },
   methods: {
-    toggleSorted (evt) {
-      const sortingParameter = evt && evt.target ? evt.target.getAttribute('parameter') : ''
-      if (Object.values(SORTING_PARAMETER).indexOf(sortingParameter) < 0) {}
-      else if (this.sortingParameter !== sortingParameter) this.sortingOrder = SORTING_ORDER.ASC
-      else this.sortingOrder = this.sortingOrder === SORTING_ORDER.ASC ? SORTING_ORDER.DESC : SORTING_ORDER.ASC
-      this.sortingParameter = sortingParameter
-    },
-    getRowClass (application) {
-      let clazz
-      if (application && application.completion) {
-        const completion = application.completion
-        if (completion.percentage >= 30) clazz = 'success-on-hover'
-        else if (completion.percentage > 15 && completion.percentage < 30) clazz = 'warning-on-hover'
-        else if (completion.percentage <= 15) clazz = 'danger-on-hover'
-      }
-      return clazz
-    },
-    getSortIconClass (sortingParameter) {
-      const clazz = ['fa']
-      if (this.sortingParameter !== sortingParameter) {
-        clazz.push('fa-unsorted disabled')
-      } else {
-        clazz.push('active')
-        if (sortingParameter === SORTING_PARAMETER.APPLICATION)
-          clazz.push(this.sortingOrder === SORTING_ORDER.DESC ? 'fa-sort-alpha-desc' : 'fa-sort-alpha-asc')
-        else if (sortingParameter === SORTING_PARAMETER.COMPLETION)
-          clazz.push(this.sortingOrder === SORTING_ORDER.DESC ? 'fa-sort-numeric-desc' : 'fa-sort-numeric-asc')
-        else
-          clazz.push(this.sortingOrder === SORTING_ORDER.DESC ? 'fa-sort-desc' : 'fa-sort-asc')
-      }
-      return clazz.join(' ')
-    },
-    createConfig() {
-      return {
-        allowEditing: false,
-        menuActions: {},
-        facets: [{
-          key: 'main',
-          attributes: ['displayName', 'type', 'description', 'completion { percentage }'],
-          callback: data => { this.data = data; this.loading = false; console.log('data', data) }
-        }]
-      }
+    getData () {
+      lx.executeGraphQL(`{
+        allFactSheets(factSheetType: ITComponent) {
+          edges {
+            node {
+              name
+              type
+              description
+            }
+          }
+        }
+      }`)
+      .then(res => {
+        console.log(res)
+      })
+      .catch(error => {
+        console.error(error)
+      })
     }
   },
   mounted () {
     lx.init()
       .then(setup => {
         this.setup = setup
-        const config = this.createConfig()
-        lx.ready(config)
-    })
+        lx.ready({})
+      })
+    setTimeout(() => {
+      console.log('gettiong data')
+      this.getData()
+    }, 5000)
   }
 }
 </script>
 
 <style lang="stylus" scoped>
-@import '~font-awesome/css/font-awesome.css'
 
 font-size = 14px
 grey-100 = #F5F5F5

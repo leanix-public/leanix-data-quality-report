@@ -50,7 +50,8 @@ module.exports = {
       },
       { test: /\.(otf|ttf|woff|woff2)$/, use: { loader: 'url-loader?limit=10000' } },
       { test: /\.(jpg|png|gif)$/, use: { loader: 'url-loader?limit=10000' } },
-      { test: /\.(eot|svg)$/, use: { loader: 'file-loader' } }
+      { test: /\.(eot|svg)$/, use: { loader: 'file-loader' } },
+      { test: /\.styl$/, loader: 'style-loader!css-loader!stylus-loader' }
     ]
   },
   plugins: [
